@@ -1,0 +1,284 @@
+[gd_scene load_steps=12 format=3 uid="uid://da1pbl5j7ibsv"]
+
+[ext_resource type="Script" uid="uid://dl646p8hshnt5" path="res://main_menu.gd" id="1_06t4h"]
+[ext_resource type="Script" uid="uid://bbslugy21hmil" path="res://button.gd" id="2_0k4wn"]
+[ext_resource type="Script" uid="uid://b8k6p4hw1gp87" path="res://snow_h_slider.gd" id="2_7vrkn"]
+[ext_resource type="Script" uid="uid://cl4nk4s4vwwd7" path="res://soil_temp_deep_h_slider.gd" id="3_fu7sn"]
+[ext_resource type="Script" uid="uid://c3nwheaxrm7ug" path="res://soil_temp_shallow_h_slider.gd" id="4_jix8l"]
+[ext_resource type="Script" uid="uid://bdhkdrtkvuhxr" path="res://surface_temp_h_slider.gd" id="5_glbon"]
+[ext_resource type="Script" uid="uid://p81r6vuiidn1" path="res://humidity_h_slider.gd" id="6_nlkkf"]
+[ext_resource type="Script" uid="uid://dgw28yawukgso" path="res://transpiration_h_slider.gd" id="7_qe12f"]
+[ext_resource type="Script" uid="uid://dpfiln3glug1x" path="res://evaportranspiration_h_slider.gd" id="8_8qtwp"]
+[ext_resource type="Script" uid="uid://cdadf660j60po" path="res://pressure_h_slider.gd" id="9_dy7ct"]
+[ext_resource type="Script" uid="uid://13be6ls6k47l" path="res://wind_h_slider.gd" id="10_0o4t1"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 3.0
+offset_right = 1.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_06t4h")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -3.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button" type="Button" parent="."]
+offset_left = 251.0
+offset_top = 141.0
+offset_right = 315.0
+offset_bottom = 171.0
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 7
+text = "Close
+"
+script = ExtResource("2_0k4wn")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+clip_contents = true
+layout_mode = 0
+offset_top = -3.0
+offset_right = 232.0
+offset_bottom = 177.0
+
+[node name="SnowHSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+offset_left = 151.0
+offset_top = -1.0
+offset_right = 231.0
+offset_bottom = 15.0
+tooltip_text = "Snow
+"
+max_value = 50.0
+script = ExtResource("2_7vrkn")
+
+[node name="SoilTempDeepHSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+offset_left = 151.0
+offset_top = 15.0
+offset_right = 231.0
+offset_bottom = 31.0
+tooltip_text = "Snow
+"
+min_value = -5.0
+max_value = 80.0
+script = ExtResource("3_fu7sn")
+
+[node name="SoilTempShallowHSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+offset_left = 151.0
+offset_top = 31.0
+offset_right = 231.0
+offset_bottom = 47.0
+tooltip_text = "Snow
+"
+min_value = -5.0
+max_value = 80.0
+script = ExtResource("4_jix8l")
+
+[node name="SurfaceTempHSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+offset_left = 150.0
+offset_top = 46.0
+offset_right = 230.0
+offset_bottom = 62.0
+tooltip_text = "Snow
+"
+script = ExtResource("5_glbon")
+
+[node name="HumidityHSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+offset_left = 150.0
+offset_top = 62.0
+offset_right = 230.0
+offset_bottom = 78.0
+tooltip_text = "Snow
+"
+script = ExtResource("6_nlkkf")
+
+[node name="TranspirationHSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+offset_left = 150.0
+offset_top = 78.0
+offset_right = 230.0
+offset_bottom = 94.0
+tooltip_text = "Snow
+"
+script = ExtResource("7_qe12f")
+
+[node name="EvaportranspirationHSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+offset_left = 150.0
+offset_top = 93.0
+offset_right = 230.0
+offset_bottom = 109.0
+tooltip_text = "Snow
+"
+min_value = -20.0
+max_value = 175.0
+script = ExtResource("8_8qtwp")
+
+[node name="PressureHSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+offset_left = 150.0
+offset_top = 109.0
+offset_right = 230.0
+offset_bottom = 125.0
+tooltip_text = "Snow
+"
+min_value = 92.0
+max_value = 95.0
+value = 92.0
+script = ExtResource("9_dy7ct")
+
+[node name="WindHSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+offset_left = 150.0
+offset_top = 123.0
+offset_right = 230.0
+offset_bottom = 139.0
+tooltip_text = "Snow
+"
+max_value = 30.0
+script = ExtResource("10_0o4t1")
+
+[node name="StormRunOffHSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+offset_left = 150.0
+offset_top = 138.0
+offset_right = 230.0
+offset_bottom = 154.0
+tooltip_text = "Snow
+"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_top = -5.0
+offset_right = 44.0
+offset_bottom = 14.0
+text = "Snow"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_top = 10.0
+offset_right = 129.0
+offset_bottom = 29.0
+text = "Soil Temp (deep)"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="RichTextLabel3" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_top = 25.0
+offset_right = 150.0
+offset_bottom = 44.0
+text = "Soil Temp (shallow)"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="RichTextLabel4" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 40.0
+offset_right = 151.0
+offset_bottom = 59.0
+text = "Surface Temp"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="RichTextLabel5" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_top = 56.0
+offset_right = 150.0
+offset_bottom = 75.0
+text = "Humidity"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="RichTextLabel6" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 71.0
+offset_right = 152.0
+offset_bottom = 90.0
+text = "Transpiration"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="RichTextLabel7" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 86.0
+offset_right = 151.0
+offset_bottom = 105.0
+text = "Evapotranspiration"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="RichTextLabel8" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 103.0
+offset_right = 151.0
+offset_bottom = 122.0
+text = "Pressure"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="RichTextLabel9" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 122.0
+offset_right = 152.0
+offset_bottom = 141.0
+text = "Wind"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="RichTextLabel10" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 137.0
+offset_right = 152.0
+offset_bottom = 156.0
+text = "Storm runoff"
+scroll_active = false
+autowrap_mode = 2
+
+[connection signal="ready" from="." to="." method="_on_ready"]
+[connection signal="ready" from="Panel" to="Panel" method="_on_ready"]
+[connection signal="pressed" from="Button" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="Button" to="Button" method="_on_environmental_factor_pressed"]
+[connection signal="value_changed" from="SnowHSlider" to="SnowHSlider" method="_on_value_changed"]
+[connection signal="value_changed" from="SoilTempDeepHSlider" to="SoilTempDeepHSlider" method="_on_value_changed"]
+[connection signal="value_changed" from="SoilTempShallowHSlider" to="SoilTempShallowHSlider" method="_on_value_changed"]
+[connection signal="value_changed" from="SurfaceTempHSlider" to="SurfaceTempHSlider" method="_on_value_changed"]
+[connection signal="value_changed" from="HumidityHSlider" to="HumidityHSlider" method="_on_value_changed"]
+[connection signal="value_changed" from="TranspirationHSlider" to="TranspirationHSlider" method="_on_value_changed"]
+[connection signal="value_changed" from="EvaportranspirationHSlider" to="EvaportranspirationHSlider" method="_on_value_changed"]
+[connection signal="value_changed" from="PressureHSlider" to="PressureHSlider" method="_on_value_changed"]
+[connection signal="value_changed" from="WindHSlider" to="WindHSlider" method="_on_value_changed"]

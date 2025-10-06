@@ -1,1 +1,2 @@
-# IntelliCrop
+# firstgame
+Practicing Godot
