@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3 uid="uid://8viagqd21mj7"]
+
+[ext_resource type="Texture2D" uid="uid://f6om23h2a4nj" path="res://Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png" id="1_kenku"]
+
+[node name="inGameUI" type="Control"]
+layout_mode = 3
+anchor_right = 4.325
+anchor_bottom = 6.511
+offset_right = -30.0001
+offset_bottom = -27.98
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="NinePatchRect" type="NinePatchRect" parent="MarginContainer/MarginContainer"]
+layout_mode = 2
+texture = ExtResource("1_kenku")
+region_rect = Rect2(742, 39, 18, 18)
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
