@@ -1,4 +1,4 @@
-[gd_scene load_steps=58 format=3 uid="uid://b7wkh3l1bq5os"]
+[gd_scene load_steps=59 format=3 uid="uid://b7wkh3l1bq5os"]
 
 [ext_resource type="Texture2D" uid="uid://l4hy3av88n0s" path="res://basic_tileset_and_assets_standard/water_and_island_tiles_v2.png" id="1_ooc2g"]
 [ext_resource type="Script" uid="uid://wcgbpdi0upjt" path="res://map.gd" id="1_r5om4"]
@@ -22,6 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://b2ra84ydt6o7i" path="res://onion_seedpack.tscn" id="19_jky6x"]
 [ext_resource type="PackedScene" uid="uid://b0fjpqmt58cw0" path="res://shovel.tscn" id="20_4sf5t"]
 [ext_resource type="Script" uid="uid://bbslugy21hmil" path="res://button.gd" id="22_jky6x"]
+[ext_resource type="Texture2D" uid="uid://crksdos15nlkw" path="res://intellicrop.png" id="23_4sf5t"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_n2jt6"]
 texture = ExtResource("1_ooc2g")
@@ -6668,6 +6669,11 @@ position = Vector2(77.9999, -83)
 scale = Vector2(0.5, 0.625)
 sprite_frames = SubResource("SpriteFrames_jk4ss")
 
+[node name="Intellicrop" type="Sprite2D" parent="player/Camera2D"]
+position = Vector2(5, -76.5)
+scale = Vector2(0.0578871, 0.0638298)
+texture = ExtResource("23_4sf5t")
+
 [node name="EnvironmentalFactorsButton" type="Button" parent="player/Camera2D"]
 offset_left = -159.0
 offset_top = -89.0
@@ -6679,5 +6685,11 @@ text = "Environmental
 Factors
 "
 script = ExtResource("22_jky6x")
+
+[node name="CheckBox" type="CheckBox" parent="."]
+offset_left = 296.0
+offset_top = 187.0
+offset_right = 320.0
+offset_bottom = 211.0
 
 [connection signal="pressed" from="player/Camera2D/EnvironmentalFactorsButton" to="player/Camera2D/EnvironmentalFactorsButton" method="_on_environmental_factor_pressed"]
