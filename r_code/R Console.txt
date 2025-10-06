@@ -1,0 +1,706 @@
+
+R version 4.3.1 (2023-06-16) -- "Beagle Scouts"
+Copyright (C) 2023 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin20 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+Error: 1:1: unexpected '>'
+1: >
+    ^
+[R.app GUI 1.79 (8238) x86_64-apple-darwin20]
+
+[History restored from /Users/gaellemuller-greven/.Rapp.history]
+
+> wheat_nasa_lm_output <- read.csv("/Users/gaellemuller-greven/Dropbox/data_science/projects/nasa_space_apps_2025/non_raw_data_docs/data/combined_nasa_wheat_df_mandan_nd_all_perennial_trt.csv", head = TRUE)
+> library(tidyr)
+> library(dplyr)
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+> library(ncdf4)
+> library(ggplot2)
+> 
+> 
+> wheat_nasa_lm_output <- read.csv("/Users/gaellemuller-greven/Dropbox/data_science/projects/nasa_space_apps_2025/non_raw_data_docs/data/combined_nasa_wheat_df_mandan_nd_all_perennial_trt.csv", head = TRUE)
+> str(wheat_nasa_lm_output)
+'data.frame':	4928 obs. of  7 variables:
+ $ wheat_variable: chr  "mean_s" "mean_mn" "mean_mn" "mean_protein" ...
+ $ variable      : chr  "mean_SoilTMP295_1295cm_inst" "mean_ESoil_tavg" "mean_Qle_tavg" "mean_SoilTMP295_1295cm_inst" ...
+ $ estimate      : num  1.37 3.47e-01 3.34e-01 1.65e+02 9.08e+05 ...
+ $ p_value       : num  0.00151 0.00152 0.00167 0.01178 0.013 ...
+ $ r_squared     : num  0.997 0.997 0.997 0.977 0.974 ...
+ $ season        : chr  "preseason" "preseason" "preseason" "preseason" ...
+ $ perennial_trt : chr  "AFW" "AFW" "AFW" "AFW" ...
+> 
+> wheat_nasa_lm_output_significant <- wheat_nasa_lm_output %>% filter(p_value < 0.05)
+> str(wheat_nasa_lm_output_significant)
+'data.frame':	158 obs. of  7 variables:
+ $ wheat_variable: chr  "mean_s" "mean_mn" "mean_mn" "mean_protein" ...
+ $ variable      : chr  "mean_SoilTMP295_1295cm_inst" "mean_ESoil_tavg" "mean_Qle_tavg" "mean_SoilTMP295_1295cm_inst" ...
+ $ estimate      : num  1.37 3.47e-01 3.34e-01 1.65e+02 9.08e+05 ...
+ $ p_value       : num  0.00151 0.00152 0.00167 0.01178 0.013 ...
+ $ r_squared     : num  0.997 0.997 0.997 0.977 0.974 ...
+ $ season        : chr  "preseason" "preseason" "preseason" "preseason" ...
+ $ perennial_trt : chr  "AFW" "AFW" "AFW" "AFW" ...
+> 
+> wheat_nasa_lm_output_significant_summary <- wheat_nasa_lm_output_significant %>% group_by(wheat_variable) %>% summarize(n())
+> str(wheat_nasa_lm_output_significant_summary)
+tibble [10 × 2] (S3: tbl_df/tbl/data.frame)
+ $ wheat_variable: chr [1:10] "mean_ca" "mean_fe" "mean_k" "mean_mg" ...
+ $ n()           : int [1:10] 16 50 3 12 33 29 4 3 5 3
+> 
+> as.data.frame(wheat_nasa_lm_output_significant_summary)
+   wheat_variable n()
+1         mean_ca  16
+2         mean_fe  50
+3          mean_k   3
+4         mean_mg  12
+5         mean_mn  33
+6         mean_ni  29
+7          mean_p   4
+8    mean_protein   3
+9          mean_s   5
+10       mean_tkw   3
+> 
+> wheat_nasa_lm_output_significant_summary <- wheat_nasa_lm_output_significant %>% group_by(wheat_variable) %>% summarize(count = n()) %>% arrange(desc(count))
+> 
+> as.data.frame(wheat_nasa_lm_output_significant_summary)
+   wheat_variable count
+1         mean_fe    50
+2         mean_mn    33
+3         mean_ni    29
+4         mean_ca    16
+5         mean_mg    12
+6          mean_s     5
+7          mean_p     4
+8          mean_k     3
+9    mean_protein     3
+10       mean_tkw     3
+> 
+> wheat_nasa_lm_output_significant_summary_season <- wheat_nasa_lm_output_significant %>% group_by(wheat_variable, season) %>% summarize(count = n()) %>% arrange(desc(count))
+`summarise()` has grouped output by 'wheat_variable'. You can override using the `.groups` argument.
+> 
+> as.data.frame(wheat_nasa_lm_output_significant_summary_season)
+   wheat_variable     season count
+1         mean_fe     season    29
+2         mean_mn postseason    20
+3         mean_fe postseason    14
+4         mean_ca     season    13
+5         mean_ni postseason    13
+6         mean_mg postseason    11
+7         mean_ni     season    10
+8         mean_mn  preseason     8
+9         mean_fe  preseason     7
+10        mean_ni  preseason     6
+11        mean_mn     season     5
+12         mean_p  preseason     4
+13        mean_ca  preseason     3
+14   mean_protein  preseason     3
+15         mean_s  preseason     3
+16       mean_tkw  preseason     3
+17         mean_k  preseason     2
+18         mean_s postseason     2
+19         mean_k postseason     1
+20        mean_mg  preseason     1
+> 
+> wheat_nasa_lm_output_significant_summary_nasa <- wheat_nasa_lm_output_significant %>% group_by(wheat_variable, var) %>% summarize(count = n()) %>% arrange(desc(count))
+Error in `group_by()`:
+! Must group by variables found in `.data`.
+✖ Column `var` is not found.
+Run `rlang::last_trace()` to see where the error occurred.
+> 
+> wheat_nasa_lm_output_significant_summary_nasa <- wheat_nasa_lm_output_significant %>% group_by(wheat_variable, variable) %>% summarize(count = n()) %>% arrange(desc(count))
+`summarise()` has grouped output by 'wheat_variable'. You can override using the `.groups` argument.
+> as.data.frame(wheat_nasa_lm_output_significant_summary_nasa)
+   wheat_variable                    variable count
+1         mean_fe     mean_SoilTMP0_10cm_inst     4
+2         mean_mn            mean_Qair_f_inst     4
+3         mean_fe          mean_AvgSurfT_inst     3
+4         mean_fe                 mean_Qs_acc     3
+5         mean_fe             mean_SnowT_tavg     3
+6         mean_fe    mean_SoilTMP10_29cm_inst     3
+7         mean_fe  mean_SoilTMP144_295cm_inst     3
+8         mean_fe            mean_Tair_f_inst     3
+9         mean_fe            mean_Wind_f_inst     3
+10        mean_mg                mean_Qsm_acc     3
+11        mean_mg             mean_Snowf_tavg     3
+12        mean_mn mean_SoilTMP295_1295cm_inst     3
+13        mean_ni            mean_Albedo_inst     3
+14        mean_ni               mean_SWE_inst     3
+15        mean_ni         mean_SnowDepth_inst     3
+16         mean_s mean_SoilTMP295_1295cm_inst     3
+17        mean_ca           mean_Psurf_f_inst     2
+18        mean_ca               mean_TWS_inst     2
+19        mean_fe          mean_CanopInt_inst     2
+20        mean_fe             mean_ESoil_tavg     2
+21        mean_fe              mean_Evap_tavg     2
+22        mean_fe                mean_Qh_tavg     2
+23        mean_fe               mean_Qle_tavg     2
+24        mean_fe           mean_Rainf_f_tavg     2
+25        mean_fe             mean_Rainf_tavg     2
+26        mean_fe    mean_SoilTMP29_68cm_inst     2
+27        mean_fe   mean_SoilTMP68_144cm_inst     2
+28        mean_fe              mean_TVeg_tavg     2
+29        mean_mg               mean_SWE_inst     2
+30        mean_mg         mean_SnowDepth_inst     2
+31        mean_mn             mean_ESoil_tavg     2
+32        mean_mn              mean_Evap_tavg     2
+33        mean_mn          mean_LWdown_f_tavg     2
+34        mean_mn               mean_Qle_tavg     2
+35        mean_mn  mean_SoilTMP144_295cm_inst     2
+36        mean_mn    mean_SoilTMP29_68cm_inst     2
+37        mean_mn              mean_TVeg_tavg     2
+38        mean_ni          mean_CanopInt_inst     2
+39        mean_ni                 mean_Qs_acc     2
+40        mean_ni                mean_Qsm_acc     2
+41        mean_ni           mean_Rainf_f_tavg     2
+42        mean_ni             mean_Rainf_tavg     2
+43        mean_ni             mean_Snowf_tavg     2
+44        mean_ni       mean_SoilMoist_P_inst     2
+45   mean_protein            mean_Wind_f_inst     2
+46         mean_s           mean_Psurf_f_inst     2
+47        mean_ca             mean_ESoil_tavg     1
+48        mean_ca              mean_Evap_tavg     1
+49        mean_ca          mean_LWdown_f_tavg     1
+50        mean_ca             mean_Lwnet_tavg     1
+51        mean_ca            mean_Qair_f_inst     1
+52        mean_ca               mean_Qle_tavg     1
+53        mean_ca                 mean_Qs_acc     1
+54        mean_ca          mean_SWdown_f_tavg     1
+55        mean_ca       mean_SoilMoist_P_inst     1
+56        mean_ca      mean_SoilMoist_RZ_inst     1
+57        mean_ca       mean_SoilMoist_S_inst     1
+58        mean_ca              mean_TVeg_tavg     1
+59        mean_fe            mean_ECanop_tavg     1
+60        mean_fe          mean_LWdown_f_tavg     1
+61        mean_fe             mean_Lwnet_tavg     1
+62        mean_fe            mean_Qair_f_inst     1
+63        mean_fe                mean_Qg_tavg     1
+64         mean_k              mean_Evap_tavg     1
+65         mean_k                mean_Qsm_acc     1
+66         mean_k mean_SoilTMP295_1295cm_inst     1
+67        mean_mg                mean_Qg_tavg     1
+68        mean_mg mean_SoilTMP295_1295cm_inst     1
+69        mean_mn             mean_ACond_tavg     1
+70        mean_mn          mean_AvgSurfT_inst     1
+71        mean_mn           mean_Psurf_f_inst     1
+72        mean_mn          mean_SWdown_f_tavg     1
+73        mean_mn             mean_SnowT_tavg     1
+74        mean_mn      mean_SoilMoist_RZ_inst     1
+75        mean_mn       mean_SoilMoist_S_inst     1
+76        mean_mn     mean_SoilTMP0_10cm_inst     1
+77        mean_mn    mean_SoilTMP10_29cm_inst     1
+78        mean_mn   mean_SoilTMP68_144cm_inst     1
+79        mean_mn             mean_Swnet_tavg     1
+80        mean_mn            mean_Tair_f_inst     1
+81        mean_ni                mean_Qh_tavg     1
+82        mean_ni          mean_SWdown_f_tavg     1
+83        mean_ni      mean_SoilMoist_RZ_inst     1
+84        mean_ni       mean_SoilMoist_S_inst     1
+85        mean_ni             mean_Swnet_tavg     1
+86        mean_ni               mean_TWS_inst     1
+87         mean_p            mean_ECanop_tavg     1
+88         mean_p             mean_Lwnet_tavg     1
+89         mean_p mean_SoilTMP295_1295cm_inst     1
+90         mean_p            mean_Wind_f_inst     1
+91   mean_protein mean_SoilTMP295_1295cm_inst     1
+92       mean_tkw             mean_ACond_tavg     1
+93       mean_tkw mean_SoilTMP295_1295cm_inst     1
+94       mean_tkw            mean_Wind_f_inst     1
+> 
+> 
+> wheat_nasa_lm_output_significant_summary <- wheat_nasa_lm_output_significant %>% group_by(perennial_trt, wheat_variable) %>% summarize(count = n()) %>% arrange(desc(count))
+`summarise()` has grouped output by 'perennial_trt'. You can override using the `.groups` argument.
+> as.data.frame(wheat_nasa_lm_output_significant_summary)
+   perennial_trt wheat_variable count
+1            IWG        mean_fe    20
+2        Alfalfa        mean_mn    17
+3        Alfalfa        mean_ni    12
+4            MIX        mean_fe    12
+5            AFW        mean_fe    11
+6        Alfalfa        mean_ca    10
+7            MIX        mean_ni    10
+8            MIX        mean_mn     8
+9            AFW        mean_ni     7
+10       Alfalfa        mean_fe     7
+11           AFW        mean_mn     6
+12           AFW        mean_mg     4
+13           MIX        mean_mg     4
+14           AFW         mean_p     3
+15           AFW        mean_ca     2
+16           AFW       mean_tkw     2
+17       Alfalfa         mean_k     2
+18       Alfalfa        mean_mg     2
+19       Alfalfa         mean_s     2
+20           IWG        mean_ca     2
+21           IWG        mean_mg     2
+22           IWG        mean_mn     2
+23           MIX        mean_ca     2
+24           MIX         mean_s     2
+25           AFW         mean_k     1
+26           AFW   mean_protein     1
+27           AFW         mean_s     1
+28       Alfalfa         mean_p     1
+29       Alfalfa   mean_protein     1
+30           IWG       mean_tkw     1
+31           MIX   mean_protein     1
+> 
+> wheat_nasa_lm_output_significant_summary_trt <- wheat_nasa_lm_output_significant %>% group_by(perennial_trt) %>% summarize(count = n()) %>% arrange(desc(count))
+> as.data.frame(wheat_nasa_lm_output_significant_summary_trt)
+  perennial_trt count
+1       Alfalfa    54
+2           MIX    39
+3           AFW    38
+4           IWG    27
+> 
+> wheat_nasa_lm_output_significant_summary_nasa <- wheat_nasa_lm_output_significant %>% group_by(season, variable) %>% summarize(count = n()) %>% arrange(desc(count))
+`summarise()` has grouped output by 'season'. You can override using the `.groups` argument.
+> as.data.frame(wheat_nasa_lm_output_significant_summary_nasa)
+       season                    variable count
+1   preseason mean_SoilTMP295_1295cm_inst     8
+2  postseason                mean_Qsm_acc     4
+3   preseason            mean_Wind_f_inst     4
+4  postseason            mean_Albedo_inst     3
+5  postseason             mean_ESoil_tavg     3
+6  postseason              mean_Evap_tavg     3
+7  postseason               mean_Qle_tavg     3
+8  postseason               mean_SWE_inst     3
+9  postseason         mean_SnowDepth_inst     3
+10 postseason             mean_Snowf_tavg     3
+11 postseason              mean_TVeg_tavg     3
+12 postseason            mean_Wind_f_inst     3
+13     season          mean_AvgSurfT_inst     3
+14     season           mean_Psurf_f_inst     3
+15     season                 mean_Qs_acc     3
+16     season             mean_SnowT_tavg     3
+17     season     mean_SoilTMP0_10cm_inst     3
+18     season            mean_Tair_f_inst     3
+19 postseason          mean_CanopInt_inst     2
+20 postseason           mean_Psurf_f_inst     2
+21 postseason            mean_Qair_f_inst     2
+22 postseason                mean_Qg_tavg     2
+23 postseason                 mean_Qs_acc     2
+24 postseason           mean_Rainf_f_tavg     2
+25 postseason             mean_Rainf_tavg     2
+26 postseason mean_SoilTMP295_1295cm_inst     2
+27  preseason              mean_Evap_tavg     2
+28  preseason          mean_LWdown_f_tavg     2
+29  preseason            mean_Qair_f_inst     2
+30  preseason       mean_SoilMoist_P_inst     2
+31  preseason  mean_SoilTMP144_295cm_inst     2
+32  preseason    mean_SoilTMP29_68cm_inst     2
+33  preseason               mean_TWS_inst     2
+34     season          mean_CanopInt_inst     2
+35     season            mean_Qair_f_inst     2
+36     season                mean_Qh_tavg     2
+37     season                mean_Qsm_acc     2
+38     season           mean_Rainf_f_tavg     2
+39     season             mean_Rainf_tavg     2
+40     season               mean_SWE_inst     2
+41     season         mean_SnowDepth_inst     2
+42     season             mean_Snowf_tavg     2
+43     season    mean_SoilTMP10_29cm_inst     2
+44     season  mean_SoilTMP144_295cm_inst     2
+45     season   mean_SoilTMP68_144cm_inst     2
+46 postseason             mean_ACond_tavg     1
+47 postseason          mean_AvgSurfT_inst     1
+48 postseason          mean_LWdown_f_tavg     1
+49 postseason             mean_Lwnet_tavg     1
+50 postseason          mean_SWdown_f_tavg     1
+51 postseason             mean_SnowT_tavg     1
+52 postseason      mean_SoilMoist_RZ_inst     1
+53 postseason       mean_SoilMoist_S_inst     1
+54 postseason     mean_SoilTMP0_10cm_inst     1
+55 postseason    mean_SoilTMP10_29cm_inst     1
+56 postseason  mean_SoilTMP144_295cm_inst     1
+57 postseason    mean_SoilTMP29_68cm_inst     1
+58 postseason             mean_Swnet_tavg     1
+59 postseason            mean_Tair_f_inst     1
+60  preseason             mean_ACond_tavg     1
+61  preseason            mean_ECanop_tavg     1
+62  preseason             mean_ESoil_tavg     1
+63  preseason             mean_Lwnet_tavg     1
+64  preseason                mean_Qh_tavg     1
+65  preseason               mean_Qle_tavg     1
+66  preseason                 mean_Qs_acc     1
+67  preseason          mean_SWdown_f_tavg     1
+68  preseason      mean_SoilMoist_RZ_inst     1
+69  preseason       mean_SoilMoist_S_inst     1
+70  preseason     mean_SoilTMP0_10cm_inst     1
+71  preseason    mean_SoilTMP10_29cm_inst     1
+72  preseason   mean_SoilTMP68_144cm_inst     1
+73  preseason              mean_TVeg_tavg     1
+74     season            mean_ECanop_tavg     1
+75     season             mean_ESoil_tavg     1
+76     season              mean_Evap_tavg     1
+77     season          mean_LWdown_f_tavg     1
+78     season             mean_Lwnet_tavg     1
+79     season               mean_Qle_tavg     1
+80     season          mean_SWdown_f_tavg     1
+81     season       mean_SoilMoist_P_inst     1
+82     season      mean_SoilMoist_RZ_inst     1
+83     season       mean_SoilMoist_S_inst     1
+84     season mean_SoilTMP295_1295cm_inst     1
+85     season    mean_SoilTMP29_68cm_inst     1
+86     season             mean_Swnet_tavg     1
+87     season              mean_TVeg_tavg     1
+88     season               mean_TWS_inst     1
+> 
+> 
+> wheat_nasa_lm_output_significant_summary_nasa <- wheat_nasa_lm_output_significant %>% group_by(variable) %>% summarize(count = n()) %>% arrange(desc(count))
+> as.data.frame(wheat_nasa_lm_output_significant_summary_nasa)
+                      variable count
+1  mean_SoilTMP295_1295cm_inst    11
+2             mean_Wind_f_inst     7
+3               mean_Evap_tavg     6
+4             mean_Qair_f_inst     6
+5                  mean_Qs_acc     6
+6                 mean_Qsm_acc     6
+7              mean_ESoil_tavg     5
+8            mean_Psurf_f_inst     5
+9                mean_Qle_tavg     5
+10               mean_SWE_inst     5
+11         mean_SnowDepth_inst     5
+12             mean_Snowf_tavg     5
+13     mean_SoilTMP0_10cm_inst     5
+14  mean_SoilTMP144_295cm_inst     5
+15              mean_TVeg_tavg     5
+16          mean_AvgSurfT_inst     4
+17          mean_CanopInt_inst     4
+18          mean_LWdown_f_tavg     4
+19           mean_Rainf_f_tavg     4
+20             mean_Rainf_tavg     4
+21             mean_SnowT_tavg     4
+22    mean_SoilTMP10_29cm_inst     4
+23    mean_SoilTMP29_68cm_inst     4
+24            mean_Tair_f_inst     4
+25            mean_Albedo_inst     3
+26             mean_Lwnet_tavg     3
+27                mean_Qh_tavg     3
+28          mean_SWdown_f_tavg     3
+29       mean_SoilMoist_P_inst     3
+30      mean_SoilMoist_RZ_inst     3
+31       mean_SoilMoist_S_inst     3
+32   mean_SoilTMP68_144cm_inst     3
+33               mean_TWS_inst     3
+34             mean_ACond_tavg     2
+35            mean_ECanop_tavg     2
+36                mean_Qg_tavg     2
+37             mean_Swnet_tavg     2
+> 
+> as.data.frame(wheat_nasa_lm_output_significant)
+    wheat_variable                    variable      estimate     p_value r_squared     season perennial_trt
+1           mean_s mean_SoilTMP295_1295cm_inst  1.370195e+00 0.001505830 0.9969906  preseason           AFW
+2          mean_mn             mean_ESoil_tavg  3.465032e-01 0.001519817 0.9969627  preseason           AFW
+3          mean_mn               mean_Qle_tavg  3.344358e-01 0.001667980 0.9966668  preseason           AFW
+4     mean_protein mean_SoilTMP295_1295cm_inst  1.646958e+02 0.011784913 0.9765691  preseason           AFW
+5          mean_mn              mean_Evap_tavg  9.080597e+05 0.013004107 0.9741609  preseason           AFW
+6          mean_ni       mean_SoilMoist_P_inst -1.275794e-03 0.014737456 0.9707423  preseason           AFW
+7           mean_p             mean_Lwnet_tavg  8.506795e-02 0.017830312 0.9646573  preseason           AFW
+8          mean_ni               mean_TWS_inst -1.155244e-03 0.020312375 0.9597878  preseason           AFW
+9          mean_mn              mean_TVeg_tavg  2.673672e+01 0.030520543 0.9398904  preseason           AFW
+10         mean_ni      mean_SoilMoist_RZ_inst -8.425353e-03 0.030696331 0.9395496  preseason           AFW
+11          mean_p            mean_ECanop_tavg -1.927042e+00 0.032995320 0.9350981  preseason           AFW
+12          mean_k              mean_Evap_tavg -6.903231e+04 0.042244900 0.9172948  preseason           AFW
+13         mean_ni       mean_SoilMoist_S_inst -4.061152e-01 0.042733423 0.9163593  preseason           AFW
+14          mean_p            mean_Wind_f_inst -1.231659e+00 0.043914075 0.9141003  preseason           AFW
+15        mean_tkw            mean_Wind_f_inst  6.684276e+00 0.044839293 0.9123320  preseason           AFW
+16         mean_ca          mean_SWdown_f_tavg  1.554833e-03 0.046781547 0.9086254  preseason           AFW
+17        mean_tkw             mean_ACond_tavg  1.770981e+03 0.048932266 0.9045298  preseason           AFW
+18         mean_fe          mean_AvgSurfT_inst  4.045104e+00 0.002988450 0.9940320     season           AFW
+19         mean_fe            mean_Tair_f_inst  4.724872e+00 0.004548441 0.9909238     season           AFW
+20         mean_fe             mean_SnowT_tavg  4.032300e+00 0.005610282 0.9888109     season           AFW
+21         mean_fe                 mean_Qs_acc -4.771566e+02 0.005905926 0.9882230     season           AFW
+22         mean_fe          mean_CanopInt_inst -8.902079e+02 0.016410863 0.9674476     season           AFW
+23         mean_fe     mean_SoilTMP0_10cm_inst  3.422904e+00 0.017552309 0.9652035     season           AFW
+24         mean_ca           mean_Psurf_f_inst  1.508350e-04 0.022006109 0.9564721     season           AFW
+25         mean_fe                mean_Qh_tavg  7.565463e-01 0.025316830 0.9500073     season           AFW
+26         mean_ni          mean_SWdown_f_tavg  4.097787e-02 0.031373395 0.9382375     season           AFW
+27         mean_ni             mean_Swnet_tavg  4.960859e-02 0.031814493 0.9373832     season           AFW
+28         mean_fe             mean_Rainf_tavg -5.221556e+05 0.042423992 0.9169518     season           AFW
+29         mean_fe           mean_Rainf_f_tavg -5.218163e+05 0.042821442 0.9161908     season           AFW
+30         mean_fe    mean_SoilTMP10_29cm_inst  2.563903e+00 0.044570908 0.9128447     season           AFW
+31         mean_fe            mean_Wind_f_inst -1.435790e+01 0.003442700 0.9931265 postseason           AFW
+32         mean_mn       mean_SoilMoist_S_inst -1.128040e+01 0.004583834 0.9908533 postseason           AFW
+33         mean_mg             mean_Snowf_tavg  6.816151e+04 0.005435541 0.9891585 postseason           AFW
+34         mean_mn      mean_SoilMoist_RZ_inst -2.420630e-01 0.005596073 0.9888392 postseason           AFW
+35         mean_mg                mean_Qsm_acc  1.247095e+01 0.015513715 0.9692132 postseason           AFW
+36         mean_ni            mean_Albedo_inst  6.197894e-02 0.029482400 0.9419044 postseason           AFW
+37         mean_mg         mean_SnowDepth_inst  1.053154e+01 0.044262585 0.9134340 postseason           AFW
+38         mean_mg               mean_SWE_inst  7.020982e-02 0.044262722 0.9134337 postseason           AFW
+39         mean_ca                 mean_Qs_acc -2.001661e+00 0.018151426 0.9640266  preseason       Alfalfa
+40    mean_protein            mean_Wind_f_inst -5.182874e+01 0.026944904 0.9468362  preseason       Alfalfa
+41          mean_s mean_SoilTMP295_1295cm_inst  1.360382e+00 0.036343022 0.9286348  preseason       Alfalfa
+42          mean_p mean_SoilTMP295_1295cm_inst  4.252605e+00 0.037861573 0.9257104  preseason       Alfalfa
+43          mean_k mean_SoilTMP295_1295cm_inst  2.296770e+00 0.040355207 0.9209181  preseason       Alfalfa
+44         mean_ni       mean_SoilMoist_P_inst -1.322496e-03 0.044936656 0.9121460  preseason       Alfalfa
+45         mean_ca             mean_ESoil_tavg -3.456968e-03 0.000520570 0.9989591     season       Alfalfa
+46         mean_ca               mean_Qle_tavg -2.269913e-03 0.001454554 0.9970930     season       Alfalfa
+47         mean_ca              mean_Evap_tavg -5.598919e+03 0.001455615 0.9970909     season       Alfalfa
+48         mean_ca               mean_TWS_inst -1.317490e-04 0.007719072 0.9846214     season       Alfalfa
+49         mean_ca       mean_SoilMoist_P_inst -1.317530e-04 0.007722500 0.9846146     season       Alfalfa
+50         mean_ca      mean_SoilMoist_RZ_inst -8.780300e-04 0.009356223 0.9813751     season       Alfalfa
+51         mean_ca              mean_TVeg_tavg -9.373124e-03 0.009864673 0.9803680     season       Alfalfa
+52         mean_mn mean_SoilTMP295_1295cm_inst  1.976573e+01 0.012024628 0.9760953     season       Alfalfa
+53         mean_ca       mean_SoilMoist_S_inst -4.122806e-02 0.017076874 0.9661379     season       Alfalfa
+54         mean_ni             mean_Snowf_tavg  1.169686e+07 0.019575517 0.9612322     season       Alfalfa
+55         mean_ni         mean_SnowDepth_inst  1.146573e+05 0.019575517 0.9612322     season       Alfalfa
+56         mean_ni               mean_SWE_inst  7.643809e+02 0.019575517 0.9612322     season       Alfalfa
+57         mean_ni                mean_Qsm_acc  1.355444e+04 0.019575517 0.9612322     season       Alfalfa
+58         mean_ca             mean_Lwnet_tavg -2.926572e-03 0.027944691 0.9448915     season       Alfalfa
+59         mean_fe            mean_ECanop_tavg -6.132791e+00 0.030772345 0.9394022     season       Alfalfa
+60         mean_ni            mean_Albedo_inst  6.818169e-02 0.001625649 0.9967513 postseason       Alfalfa
+61         mean_mn          mean_SWdown_f_tavg -1.391496e-01 0.006842119 0.9863626 postseason       Alfalfa
+62         mean_fe             mean_ESoil_tavg -3.907884e-01 0.011022267 0.9780770 postseason       Alfalfa
+63         mean_mn mean_SoilTMP295_1295cm_inst  1.079915e+01 0.011101433 0.9779204 postseason       Alfalfa
+64         mean_mn              mean_TVeg_tavg -6.164607e+00 0.011777727 0.9765833 postseason       Alfalfa
+65         mean_mn             mean_Swnet_tavg -1.619069e-01 0.012073892 0.9759980 postseason       Alfalfa
+66         mean_mn               mean_Qle_tavg -2.551077e-01 0.015057950 0.9701108 postseason       Alfalfa
+67         mean_mn              mean_Evap_tavg -6.413751e+05 0.015678368 0.9688891 postseason       Alfalfa
+68         mean_mn            mean_Qair_f_inst -3.351621e+03 0.018237974 0.9638567 postseason       Alfalfa
+69         mean_fe               mean_Qle_tavg -3.650769e-01 0.018691907 0.9629656 postseason       Alfalfa
+70         mean_fe              mean_TVeg_tavg -8.779843e+00 0.020126588 0.9601519 postseason       Alfalfa
+71         mean_mn             mean_ESoil_tavg -2.694721e-01 0.020454154 0.9595101 postseason       Alfalfa
+72         mean_fe              mean_Evap_tavg -9.152965e+05 0.022040701 0.9564044 postseason       Alfalfa
+73         mean_ni          mean_CanopInt_inst  5.418162e+01 0.023867380 0.9528349 postseason       Alfalfa
+74          mean_s           mean_Psurf_f_inst  5.368671e-03 0.024336079 0.9519201 postseason       Alfalfa
+75         mean_mn             mean_ACond_tavg -1.937470e+03 0.025256663 0.9501246 postseason       Alfalfa
+76         mean_fe             mean_Lwnet_tavg  8.929793e-01 0.029470104 0.9419283 postseason       Alfalfa
+77         mean_ni               mean_SWE_inst  7.891817e-02 0.030378996 0.9401649 postseason       Alfalfa
+78         mean_ni         mean_SnowDepth_inst  1.183779e+01 0.030379194 0.9401645 postseason       Alfalfa
+79         mean_mn     mean_SoilTMP0_10cm_inst -7.904861e-01 0.030557994 0.9398178 postseason       Alfalfa
+80         mean_mg             mean_Snowf_tavg  7.340922e+04 0.031073470 0.9388186 postseason       Alfalfa
+81         mean_mn    mean_SoilTMP10_29cm_inst -8.993928e-01 0.031836850 0.9373399 postseason       Alfalfa
+82         mean_ni           mean_Rainf_f_tavg  1.462189e+04 0.033602996 0.9339232 postseason       Alfalfa
+83         mean_mg                mean_Qg_tavg -2.538459e-02 0.034855532 0.9315038 postseason       Alfalfa
+84         mean_mn            mean_Tair_f_inst -6.877892e-01 0.035976076 0.9293421 postseason       Alfalfa
+85         mean_mn          mean_LWdown_f_tavg -1.890049e-01 0.036436155 0.9284553 postseason       Alfalfa
+86         mean_fe                mean_Qg_tavg -1.000503e+00 0.036541723 0.9282519 postseason       Alfalfa
+87          mean_k                mean_Qsm_acc  3.305452e+01 0.037761527 0.9259029 postseason       Alfalfa
+88         mean_mn             mean_SnowT_tavg -7.043798e-01 0.040617475 0.9204148 postseason       Alfalfa
+89         mean_mn          mean_AvgSurfT_inst -7.019894e-01 0.041629411 0.9184742 postseason       Alfalfa
+90         mean_ni                 mean_Qs_acc  1.364406e+01 0.046099808 0.9099256 postseason       Alfalfa
+91         mean_mn    mean_SoilTMP29_68cm_inst -1.192253e+00 0.046702059 0.9087770 postseason       Alfalfa
+92         mean_ni             mean_Rainf_tavg  1.748165e+04 0.047580908 0.9071021 postseason       Alfalfa
+93         mean_fe    mean_SoilTMP29_68cm_inst  1.140851e+00 0.008871097 0.9823365  preseason           IWG
+94         mean_fe          mean_LWdown_f_tavg  2.117665e-01 0.011588195 0.9769579  preseason           IWG
+95         mean_fe    mean_SoilTMP10_29cm_inst  9.776396e-01 0.021688557 0.9570933  preseason           IWG
+96         mean_fe     mean_SoilTMP0_10cm_inst  8.958223e-01 0.029382041 0.9420992  preseason           IWG
+97         mean_fe            mean_Qair_f_inst  6.431614e+03 0.029424902 0.9420160  preseason           IWG
+98         mean_fe   mean_SoilTMP68_144cm_inst  2.146569e+00 0.035673394 0.9299258  preseason           IWG
+99         mean_fe  mean_SoilTMP144_295cm_inst  3.730898e+00 0.036018683 0.9292600  preseason           IWG
+100       mean_tkw mean_SoilTMP295_1295cm_inst -2.302199e+01 0.045931272 0.9102471  preseason           IWG
+101        mean_mg mean_SoilTMP295_1295cm_inst  7.463142e-01 0.047382641 0.9074798  preseason           IWG
+102        mean_fe   mean_SoilTMP68_144cm_inst  9.649050e-01 0.002397996 0.9952098     season           IWG
+103        mean_fe  mean_SoilTMP144_295cm_inst  1.225644e+00 0.004352590 0.9913138     season           IWG
+104        mean_ca            mean_Qair_f_inst -3.124535e+01 0.005100651 0.9898247     season           IWG
+105        mean_fe    mean_SoilTMP10_29cm_inst  1.987981e+00 0.007090667 0.9858689     season           IWG
+106        mean_fe     mean_SoilTMP0_10cm_inst  2.574662e+00 0.009543645 0.9810038     season           IWG
+107        mean_fe    mean_SoilTMP29_68cm_inst  1.368156e+00 0.013423245 0.9733337     season           IWG
+108        mean_fe             mean_SnowT_tavg  2.967428e+00 0.019191218 0.9619859     season           IWG
+109        mean_ca          mean_LWdown_f_tavg -3.840872e-03 0.020425216 0.9595668     season           IWG
+110        mean_fe                 mean_Qs_acc -3.501845e+02 0.022168728 0.9561540     season           IWG
+111        mean_fe          mean_AvgSurfT_inst  2.949872e+00 0.025517379 0.9496164     season           IWG
+112        mean_fe            mean_Tair_f_inst  3.440828e+00 0.028386694 0.9440324     season           IWG
+113        mean_fe             mean_Rainf_tavg -3.913240e+05 0.038143636 0.9251677     season           IWG
+114        mean_fe           mean_Rainf_f_tavg -3.911973e+05 0.038229388 0.9250027     season           IWG
+115        mean_mn            mean_Qair_f_inst  3.785890e+03 0.041573595 0.9185812     season           IWG
+116        mean_mn           mean_Psurf_f_inst -2.179552e-02 0.048314198 0.9057059     season           IWG
+117        mean_fe  mean_SoilTMP144_295cm_inst  4.088736e+00 0.012581436 0.9749954 postseason           IWG
+118        mean_fe            mean_Wind_f_inst -1.049001e+01 0.024139621 0.9523035 postseason           IWG
+119        mean_mg                mean_Qsm_acc  1.090022e+01 0.030627419 0.9396832 postseason           IWG
+120        mean_mn  mean_SoilTMP144_295cm_inst  2.117781e+00 0.002016329 0.9959714  preseason           MIX
+121         mean_s mean_SoilTMP295_1295cm_inst  1.105927e+00 0.005000368 0.9900243  preseason           MIX
+122   mean_protein            mean_Wind_f_inst -4.526204e+01 0.011627787 0.9768796  preseason           MIX
+123        mean_ni                mean_Qh_tavg  1.378985e-02 0.024003355 0.9525695  preseason           MIX
+124        mean_mn          mean_LWdown_f_tavg  1.139551e-01 0.029933356 0.9410293  preseason           MIX
+125        mean_ca               mean_TWS_inst -1.521480e-04 0.044714674 0.9125701  preseason           MIX
+126        mean_mn            mean_Qair_f_inst  3.464240e+03 0.046536113 0.9090934  preseason           MIX
+127        mean_mn    mean_SoilTMP29_68cm_inst  6.009729e-01 0.047767414 0.9067469  preseason           MIX
+128        mean_ca           mean_Psurf_f_inst  1.340140e-04 0.002784910 0.9944379     season           MIX
+129        mean_ni                mean_Qsm_acc  1.451580e+04 0.009873950 0.9803496     season           MIX
+130        mean_ni               mean_SWE_inst  8.185957e+02 0.009873950 0.9803496     season           MIX
+131        mean_ni             mean_Snowf_tavg  1.252647e+07 0.009873950 0.9803496     season           MIX
+132        mean_ni         mean_SnowDepth_inst  1.227895e+05 0.009873950 0.9803496     season           MIX
+133        mean_fe          mean_AvgSurfT_inst  3.599596e+00 0.019762558 0.9608654     season           MIX
+134        mean_mn   mean_SoilTMP68_144cm_inst  5.181793e-01 0.022897938 0.9547284     season           MIX
+135        mean_fe             mean_SnowT_tavg  3.581441e+00 0.024182649 0.9522195     season           MIX
+136        mean_fe            mean_Tair_f_inst  4.190531e+00 0.024547516 0.9515075     season           MIX
+137        mean_fe          mean_CanopInt_inst -7.990261e+02 0.024583231 0.9514379     season           MIX
+138        mean_fe                 mean_Qs_acc -4.230390e+02 0.026235517 0.9482173     season           MIX
+139        mean_fe                mean_Qh_tavg  6.783647e-01 0.034397994 0.9323872     season           MIX
+140        mean_fe     mean_SoilTMP0_10cm_inst  3.019192e+00 0.042558069 0.9166951     season           MIX
+141        mean_mn  mean_SoilTMP144_295cm_inst  6.453242e-01 0.043893764 0.9141391     season           MIX
+142        mean_ni             mean_Rainf_tavg  1.946181e+04 0.000125285 0.9997494 postseason           MIX
+143        mean_ni                 mean_Qs_acc  1.514615e+01 0.001430109 0.9971418 postseason           MIX
+144        mean_mg             mean_Snowf_tavg  5.313634e+04 0.001544743 0.9969129 postseason           MIX
+145        mean_ni           mean_Rainf_f_tavg  1.598263e+04 0.003868265 0.9922784 postseason           MIX
+146        mean_fe            mean_Wind_f_inst -1.293518e+01 0.008047447 0.9839699 postseason           MIX
+147        mean_mg         mean_SnowDepth_inst  8.463767e+00 0.010868970 0.9783802 postseason           MIX
+148        mean_mg               mean_SWE_inst  5.642478e-02 0.010869055 0.9783800 postseason           MIX
+149        mean_ni          mean_CanopInt_inst  5.815987e+01 0.011908872 0.9763241 postseason           MIX
+150        mean_mg                mean_Qsm_acc  9.636625e+00 0.020333484 0.9597465 postseason           MIX
+151        mean_mn            mean_Qair_f_inst -1.535474e+03 0.031223770 0.9385274 postseason           MIX
+152         mean_s           mean_Psurf_f_inst  4.186800e-03 0.033614053 0.9339018 postseason           MIX
+153        mean_fe              mean_Evap_tavg -6.447312e+05 0.036719333 0.9279096 postseason           MIX
+154        mean_fe               mean_Qle_tavg -2.552592e-01 0.040560218 0.9205247 postseason           MIX
+155        mean_mn mean_SoilTMP295_1295cm_inst  4.863017e+00 0.040825028 0.9200166 postseason           MIX
+156        mean_fe             mean_ESoil_tavg -2.707377e-01 0.041904567 0.9179469 postseason           MIX
+157        mean_ni            mean_Albedo_inst  6.916198e-02 0.044985819 0.9120521 postseason           MIX
+158        mean_fe              mean_TVeg_tavg -6.098232e+00 0.048295029 0.9057424 postseason           MIX
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> wheat_nasa_lm_output_significant_summary_nasa_positive <- wheat_nasa_lm_output_significant %>% filter(estimate > 0) %>% group_by(variable) %>% summarize(count = n(), estimate_mean = mean(estimate)) %>% arrange(desc(count))
+> wheat_nasa_lm_output_significant_summary_nasa_negative <- wheat_nasa_lm_output_significant %>% filter(estimate < 0) %>% group_by(variable) %>% summarize(count = n(), estimate_mean = mean(estimate)) %>% arrange(desc(count))
+> 
+> as.data.frame(wheat_nasa_lm_output_significant_summary_nasa_positive)
+                      variable count estimate_mean
+1  mean_SoilTMP295_1295cm_inst    10  2.112558e+01
+2                 mean_Qsm_acc     6  4.689384e+03
+3                mean_SWE_inst     5  3.166364e+02
+4          mean_SnowDepth_inst     5  4.749551e+04
+5              mean_Snowf_tavg     5  4.883607e+06
+6   mean_SoilTMP144_295cm_inst     5  2.361677e+00
+7            mean_Psurf_f_inst     4  2.460080e-03
+8      mean_SoilTMP0_10cm_inst     4  2.478145e+00
+9             mean_Albedo_inst     3  6.644087e-02
+10          mean_AvgSurfT_inst     3  3.531524e+00
+11            mean_Qair_f_inst     3  4.560581e+03
+12                mean_Qh_tavg     3  4.829003e-01
+13             mean_SnowT_tavg     3  3.527056e+00
+14    mean_SoilTMP10_29cm_inst     3  1.843175e+00
+15    mean_SoilTMP29_68cm_inst     3  1.036660e+00
+16   mean_SoilTMP68_144cm_inst     3  1.209884e+00
+17            mean_Tair_f_inst     3  4.118744e+00
+18          mean_CanopInt_inst     2  5.617074e+01
+19          mean_LWdown_f_tavg     2  1.628608e-01
+20             mean_Lwnet_tavg     2  4.890236e-01
+21                 mean_Qs_acc     2  1.439511e+01
+22           mean_Rainf_f_tavg     2  1.530226e+04
+23             mean_Rainf_tavg     2  1.847173e+04
+24          mean_SWdown_f_tavg     2  2.126635e-02
+25             mean_ACond_tavg     1  1.770981e+03
+26             mean_ESoil_tavg     1  3.465032e-01
+27              mean_Evap_tavg     1  9.080597e+05
+28               mean_Qle_tavg     1  3.344358e-01
+29             mean_Swnet_tavg     1  4.960859e-02
+30              mean_TVeg_tavg     1  2.673672e+01
+31            mean_Wind_f_inst     1  6.684276e+00
+> 
+> wheat_nasa_lm_output_significant_summary_nasa_negative <- wheat_nasa_lm_output_significant %>% filter(estimate < 0) %>% group_by(variable) %>% summarize(count = n(), estimate_mean = mean(estimate), estimate_median = median(estimate)) %>% arrange(desc(count))
+> 
+> wheat_nasa_lm_output_significant_summary_nasa_positive <- wheat_nasa_lm_output_significant %>% filter(estimate > 0) %>% group_by(variable) %>% summarize(count = n(), estimate_mean = mean(estimate), estimate_median = median(estimate)) %>% arrange(desc(count))
+> wheat_nasa_lm_output_significant_summary_nasa_negative <- wheat_nasa_lm_output_significant %>% filter(estimate < 0) %>% group_by(variable) %>% summarize(count = n(), estimate_mean = mean(estimate), estimate_median = median(estimate)) %>% arrange(desc(count))
+2025-10-04 07:42:39.531 R[500:3978] -[NSDocumentController fileExtensionsFromType:] is deprecated, and does not work when passed a uniform type identifier (UTI). If the application didn't invoke it directly then the problem is probably that some other NSDocument or NSDocumentController method is getting confused by a UTI that's not actually declared anywhere. Maybe it should be declared in the UTExportedTypeDeclarations section of this app's Info.plist but is not. The alleged UTI in question is "public.text".
+2025-10-04 07:42:39.757 R[500:3978] +[CATransaction synchronize] called within transaction
+2025-10-04 07:42:39.804 R[500:3978] +[CATransaction synchronize] called within transaction
+2025-10-04 07:42:39.865 R[500:3978] +[CATransaction synchronize] called within transaction
+2025-10-04 07:42:39.888 R[500:3978] +[CATransaction synchronize] called within transaction
+2025-10-04 07:42:39.908 R[500:3978] +[CATransaction synchronize] called within transaction
+2025-10-04 07:42:39.921 R[500:3978] +[CATransaction synchronize] called within transaction
+2025-10-04 07:42:39.941 R[500:3978] +[CATransaction synchronize] called within transaction
+2025-10-04 07:42:40.010 R[500:3978] +[CATransaction synchronize] called within transaction
+2025-10-04 07:42:40.428 R[500:3978] +[CATransaction synchronize] called within transaction
+2025-10-04 07:42:40.517 R[500:3978] +[CATransaction synchronize] called within transaction
+> 
+> 
+> as.data.frame(wheat_nasa_lm_output_significant_summary_nasa_positive)
+                      variable count estimate_mean estimate_median
+1  mean_SoilTMP295_1295cm_inst    10  2.112558e+01    3.274687e+00
+2                 mean_Qsm_acc     6  4.689384e+03    2.276273e+01
+3                mean_SWE_inst     5  3.166364e+02    7.891817e-02
+4          mean_SnowDepth_inst     5  4.749551e+04    1.183779e+01
+5              mean_Snowf_tavg     5  4.883607e+06    7.340922e+04
+6   mean_SoilTMP144_295cm_inst     5  2.361677e+00    2.117781e+00
+7            mean_Psurf_f_inst     4  2.460080e-03    2.168818e-03
+8      mean_SoilTMP0_10cm_inst     4  2.478145e+00    2.796927e+00
+9             mean_Albedo_inst     3  6.644087e-02    6.818169e-02
+10          mean_AvgSurfT_inst     3  3.531524e+00    3.599596e+00
+11            mean_Qair_f_inst     3  4.560581e+03    3.785890e+03
+12                mean_Qh_tavg     3  4.829003e-01    6.783647e-01
+13             mean_SnowT_tavg     3  3.527056e+00    3.581441e+00
+14    mean_SoilTMP10_29cm_inst     3  1.843175e+00    1.987981e+00
+15    mean_SoilTMP29_68cm_inst     3  1.036660e+00    1.140851e+00
+16   mean_SoilTMP68_144cm_inst     3  1.209884e+00    9.649050e-01
+17            mean_Tair_f_inst     3  4.118744e+00    4.190531e+00
+18          mean_CanopInt_inst     2  5.617074e+01    5.617074e+01
+19          mean_LWdown_f_tavg     2  1.628608e-01    1.628608e-01
+20             mean_Lwnet_tavg     2  4.890236e-01    4.890236e-01
+21                 mean_Qs_acc     2  1.439511e+01    1.439511e+01
+22           mean_Rainf_f_tavg     2  1.530226e+04    1.530226e+04
+23             mean_Rainf_tavg     2  1.847173e+04    1.847173e+04
+24          mean_SWdown_f_tavg     2  2.126635e-02    2.126635e-02
+25             mean_ACond_tavg     1  1.770981e+03    1.770981e+03
+26             mean_ESoil_tavg     1  3.465032e-01    3.465032e-01
+27              mean_Evap_tavg     1  9.080597e+05    9.080597e+05
+28               mean_Qle_tavg     1  3.344358e-01    3.344358e-01
+29             mean_Swnet_tavg     1  4.960859e-02    4.960859e-02
+30              mean_TVeg_tavg     1  2.673672e+01    2.673672e+01
+31            mean_Wind_f_inst     1  6.684276e+00    6.684276e+00
+> 
+> as.data.frame(wheat_nasa_lm_output_significant_summary_nasa_negative)
+                      variable count estimate_mean estimate_median
+1             mean_Wind_f_inst     6 -2.268425e+01   -1.364654e+01
+2               mean_Evap_tavg     5 -4.552068e+05   -6.413751e+05
+3              mean_ESoil_tavg     4 -2.336138e-01   -2.701049e-01
+4                mean_Qle_tavg     4 -2.194284e-01   -2.551835e-01
+5                  mean_Qs_acc     4 -3.130954e+02   -3.866118e+02
+6               mean_TVeg_tavg     4 -5.263014e+00   -6.131420e+00
+7             mean_Qair_f_inst     3 -1.639447e+03   -1.535474e+03
+8        mean_SoilMoist_P_inst     3 -9.100143e-04   -1.275794e-03
+9       mean_SoilMoist_RZ_inst     3 -8.378879e-02   -8.425353e-03
+10       mean_SoilMoist_S_inst     3 -3.909249e+00   -4.061152e-01
+11               mean_TWS_inst     3 -4.797137e-04   -1.521480e-04
+12          mean_CanopInt_inst     2 -8.446170e+02   -8.446170e+02
+13            mean_ECanop_tavg     2 -4.029916e+00   -4.029916e+00
+14          mean_LWdown_f_tavg     2 -9.642289e-02   -9.642289e-02
+15                mean_Qg_tavg     2 -5.129437e-01   -5.129437e-01
+16           mean_Rainf_f_tavg     2 -4.565068e+05   -4.565068e+05
+17             mean_Rainf_tavg     2 -4.567398e+05   -4.567398e+05
+18             mean_ACond_tavg     1 -1.937470e+03   -1.937470e+03
+19          mean_AvgSurfT_inst     1 -7.019894e-01   -7.019894e-01
+20             mean_Lwnet_tavg     1 -2.926572e-03   -2.926572e-03
+21           mean_Psurf_f_inst     1 -2.179552e-02   -2.179552e-02
+22          mean_SWdown_f_tavg     1 -1.391496e-01   -1.391496e-01
+23             mean_SnowT_tavg     1 -7.043798e-01   -7.043798e-01
+24     mean_SoilTMP0_10cm_inst     1 -7.904861e-01   -7.904861e-01
+25    mean_SoilTMP10_29cm_inst     1 -8.993928e-01   -8.993928e-01
+26 mean_SoilTMP295_1295cm_inst     1 -2.302199e+01   -2.302199e+01
+27    mean_SoilTMP29_68cm_inst     1 -1.192253e+00   -1.192253e+00
+28             mean_Swnet_tavg     1 -1.619069e-01   -1.619069e-01
+29            mean_Tair_f_inst     1 -6.877892e-01   -6.877892e-01
+> 
+> 
+> 
+> wheat_nasa_lm_output_significant_summary_nasa_positive_by_season <- wheat_nasa_lm_output_significant %>% filter(estimate > 0) %>% group_by(season, variable) %>% summarize(count = n(), estimate_mean = mean(estimate), estimate_median = median(estimate)) %>% arrange(season, desc(count))
+`summarise()` has grouped output by 'season'. You can override using the `.groups` argument.
+2025-10-04 09:50:42.868 R[500:3978] +[CATransaction synchronize] called within transaction
+2025-10-04 09:50:43.194 R[500:3978] +[CATransaction synchronize] called within transaction
+> wheat_nasa_lm_output_significant_summary_nasa_negative_by_season <- wheat_nasa_lm_output_significant %>% filter(estimate < 0) %>% group_by(season, variable) %>% summarize(count = n(), estimate_mean = mean(estimate), estimate_median = median(estimate)) %>% arrange(season, desc(count))
